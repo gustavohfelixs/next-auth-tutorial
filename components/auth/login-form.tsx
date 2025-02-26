@@ -19,8 +19,15 @@ import {
 import { CardWrapper } from "./card-wrapper";
 import { Input } from "../ui/input";
 import { Button } from "../ui/button";
+import { FormError } from "../form-error";
+import { FormSuccess } from "../form-success";
+
+import { login } from "@/actions/login";
+import { useTransition } from "react";
 
 export const LoginForm = () => {
+  const [isPending, startTransition] = useTransition();
+
   const form = useForm<z.infer<typeof LoginSchema>>({
     resolver: zodResolver(LoginSchema),
     defaultValues: {
@@ -30,7 +37,9 @@ export const LoginForm = () => {
   });
 
   const onSubmit = (values: z.infer<typeof LoginSchema>) => {
-    console.log(values);
+    startTransition(() => {
+      login(values);
+    });
   };
 
   return (
@@ -54,6 +63,7 @@ export const LoginForm = () => {
                       {...field}
                       placeholder="meuemail@exmplo.com"
                       type="email"
+                      disabled={isPending}
                     ></Input>
                   </FormControl>
                   <FormMessage />
@@ -72,6 +82,7 @@ export const LoginForm = () => {
                       {...field}
                       type="password"
                       placeholder="*******"
+                      disabled={isPending}
                     ></Input>
                   </FormControl>
                   <FormMessage />
@@ -79,8 +90,14 @@ export const LoginForm = () => {
               )}
             ></FormField>
           </div>
-
-          <Button type="submit" className="w-full" variant={"default"}>
+          <FormError message="" />
+          <FormSuccess message="" />
+          <Button
+            type="submit"
+            className="w-full"
+            variant={"default"}
+            disabled={isPending}
+          >
             Login
           </Button>
         </form>
