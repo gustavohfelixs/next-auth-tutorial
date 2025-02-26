@@ -14,7 +14,7 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import { startTransition, useTransition } from "react";
+import { useState, useTransition } from "react";
 import { register } from "@/actions/register";
 import { Input } from "../ui/input";
 import { Button } from "../ui/button";
@@ -22,6 +22,8 @@ import { FormError } from "../form-error";
 import { FormSuccess } from "../form-success";
 
 export const RegisterForm = () => {
+  const [success, setSuccess] = useState<string | undefined>("");
+  const [error, setError] = useState<string | undefined>("");
   const [isPending, startTransition] = useTransition();
 
   const form = useForm<z.infer<typeof RegisterSchema>>({
@@ -35,7 +37,10 @@ export const RegisterForm = () => {
 
   const onSubmit = (values: z.infer<typeof RegisterSchema>) => {
     startTransition(() => {
-      register(values);
+      register(values).then((data) => {
+        setError(data.error);
+        setSuccess(data.success);
+      });
     });
   };
 
@@ -104,9 +109,14 @@ export const RegisterForm = () => {
               )}
             ></FormField>
           </div>
-          <FormError message="" />
-          <FormSuccess message="" />
-          <Button type="submit" className="w-full" variant={"default"}>
+          <FormError message={error} />
+          <FormSuccess message={success} />
+          <Button
+            type="submit"
+            className="w-full"
+            variant={"default"}
+            disabled={isPending}
+          >
             Create an account
           </Button>
         </form>
