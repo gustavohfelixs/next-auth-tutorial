@@ -31,7 +31,7 @@ export const LoginForm = () => {
   const urlError =
     searchParams.get("error") === "OAuthAccountNotLinked"
       ? "Email already in use by a different provider!"
-      : " ";
+      : null;
 
   const [isPending, startTransition] = useTransition();
 
@@ -50,8 +50,7 @@ export const LoginForm = () => {
     startTransition(() => {
       login(values).then((data) => {
         setError(data?.error);
-        // TODO: add when add 2FA
-        // setSuccess(data?.success);
+        setSuccess(data?.success);
       });
     });
   };

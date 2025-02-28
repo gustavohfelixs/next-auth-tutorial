@@ -12,7 +12,6 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
     signIn: "/auth/login",
     error: "/auth/error",
   },
-
   events: {
     async linkAccount({ user }) {
       await db.user.update({
@@ -24,15 +23,20 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
     },
   },
   callbacks: {
-    // async signIn({ user }) {
-    //   const existingUser = await findUserById(user.id);
+    async signIn({ user, account }) {
+      if (account?.provider !== "credentials") {
+        return true;
+      }
 
-    //   if (!existingUser || !existingUser.emailVerified) {
-    //     return false;
-    //   }
+      const existingUser = await findUserById(user.id);
 
-    //   return true;
-    // },
+      // Prevent sign in withou email verification
+      if (!existingUser?.emailVerified) return false;
+
+      // TODO: Add 2FA check
+
+      return true;
+    },
     async session({ token, session }) {
       console.log({ sessionToken: token });
       if (token.sub && session.user) {
