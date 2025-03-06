@@ -6,6 +6,7 @@ import { findUserById } from "./data/user";
 
 import { db } from "./lib/db";
 import { User, UserRole } from "@prisma/client";
+import { findTwoFactorConfirmationByUserId } from "./data/two-factor-confirmation";
 
 export const { auth, handlers, signIn, signOut } = NextAuth({
   pages: {
@@ -35,6 +36,23 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
 
       // TODO: Add 2FA check
 
+      if (existingUser.isTwoFactorEnabled) {
+        const twoFactorConfirmation = await findTwoFactorConfirmationByUserId(
+          user.id
+        );
+
+        console.log({ twoFactorConfirmation });
+
+        if (!twoFactorConfirmation) return false;
+
+        // Delete two factor confirmaton for next sign in
+        await db.twoFactorConfirmation.delete({
+          where: {
+            id: twoFactorConfirmation.id,
+          },
+        });
+      }
+
       return true;
     },
     async session({ token, session }) {
@@ -45,6 +63,9 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
 
       if (token.role && session.user) {
         session.user.role = token.role as UserRole;
+      }
+      if (session.user) {
+        session.user.isTwoFactorEnabled = token.isTwoFactorEnabled as boolean;
       }
 
       return session;
@@ -57,6 +78,7 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
       if (!existingUser) return token;
 
       token.role = existingUser.role;
+      token.isTwoFactorEnabled = existingUser.isTwoFactorEnabled as boolean;
 
       return token;
     },
