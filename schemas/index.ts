@@ -1,5 +1,9 @@
 import * as z from "zod";
 
+export const SettingsSchemas = z.object({
+  name: z.optional(z.string()),
+});
+
 export const LoginSchema = z.object({
   email: z.string().email(),
   password: z.string().min(1, { message: "Password is required" }),

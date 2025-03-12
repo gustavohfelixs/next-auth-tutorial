@@ -42,13 +42,13 @@ export const UserInfo = ({ user, label }: UserInfoProps) => {
         </div>
         <div className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm">
           <p className="text-sm font-medium">Two-Factor Authentication</p>
-          <p className="truncate text-xs max-w-[180px] font-mono p-1 bg-slate-100 rounded-md">
+          <div className="truncate text-xs max-w-[180px] font-mono p-1 bg-slate-100 rounded-md">
             <Badge
               variant={user?.isTwoFactorEnabled ? "success" : "destructive"}
             >
               {user?.isTwoFactorEnabled ? "ON" : "OFF"}
             </Badge>
-          </p>
+          </div>
         </div>
       </CardContent>
     </Card>
